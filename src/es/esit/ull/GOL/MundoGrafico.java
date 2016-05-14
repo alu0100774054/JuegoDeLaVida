@@ -14,10 +14,12 @@ public class MundoGrafico extends JPanel {
 	private int proporcionX;
 	private int proporcionY;
 	private int tam;
+	private boolean iniciado;
 	
 	public MundoGrafico(int tam) {
 		this.tam = tam;
 		mundo = new Mundo(tam);
+		iniciado = false;
 		addMouseListener(new CrearVidaListener());
 	}
 	
@@ -27,21 +29,31 @@ public class MundoGrafico extends JPanel {
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		dibujarUniverso(g);
-		dibujarVida(g);
+		if (!isIniciado()) {
+			dibujarUniverso(g);
+			dibujarVida(g);
+			dibujarUniverso(g);
+			setIniciado(true);
+		} else {
+			getMundo().siguiente();
+			dibujarVida(g);
+		}	
 	}
 
 	private void dibujarUniverso(Graphics g) {
-		g.setColor(Color.BLACK);
+		
 		
 		setProporcionX(this.getWidth() / getTam());
 		setProporcionY(this.getHeight() / getTam());
 		
 		int inicioX = 0;
 		int inicioY = 0;
-		
 		for (int i = 0; i < getTam(); i++) {
+			g.setColor(Color.DARK_GRAY);
 			g.fillRect(inicioX, inicioY, getProporcionX(), getProporcionY());
+			g.setColor(Color.BLACK);
+			g.drawLine(inicioX, 0, inicioX, this.getHeight());
+			g.drawLine(0, inicioY, this.getWidth(), inicioY);
 			inicioX += getProporcionX();
 			inicioY += getProporcionY();
 		}
@@ -55,12 +67,18 @@ public class MundoGrafico extends JPanel {
 			inicioX = 0;
 			inicioY += getProporcionY();
 			for (int j = 0; j < getMundo().getTam(); j++) {
-				if (getMundo().getMundo()[i][j]) {
+				if (getMundo().getSiguienteGeneracion()[i][j]) {
 					g.setColor(Color.YELLOW);
 					g.fillRect(inicioX, inicioY, getProporcionX(), getProporcionY());
+					g.setColor(Color.BLACK);
+					g.drawLine(inicioX, 0, inicioX, this.getHeight());
+					g.drawLine(0, inicioY, this.getWidth(), inicioY);
 				} else {
 					g.setColor(Color.BLACK);
 					g.fillRect(inicioX, inicioY, getProporcionX(), getProporcionY());
+					g.setColor(Color.BLACK);
+					g.drawLine(inicioX, 0, inicioX, this.getHeight());
+					g.drawLine(0, inicioY, this.getWidth(), inicioY);
 				}
 				inicioX += getProporcionX();
 				
@@ -107,8 +125,17 @@ public class MundoGrafico extends JPanel {
 	/*
 	 * Getter & Setter
 	 */
+	
 	public int getTam() {
 		return tam;
+	}
+
+	public boolean isIniciado() {
+		return iniciado;
+	}
+
+	public void setIniciado(boolean iniciado) {
+		this.iniciado = iniciado;
 	}
 
 	public void setTam(int tam) {
