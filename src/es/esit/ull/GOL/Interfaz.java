@@ -1,3 +1,11 @@
+/**
+ * @author Erik Andreas Barreto de Vera.
+ * E-mail: alu0100774054@ull.edu.es
+ * Fecha: 18/05/2016
+ * Asignatura: Programación de Aplicaciones Interactivas.
+ * Comentario: Clase que contiene la interfaz del juego.
+ */
+
 package es.esit.ull.GOL;
 
 import java.awt.BorderLayout;
@@ -6,9 +14,14 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
@@ -33,7 +46,10 @@ public class Interfaz extends JFrame {
 	private int minVelocidad = 1;
 	private int maxVelocidad = 100;
 	private int tam;
-	
+	private Autor erik;
+	private JButton botonInformacion;
+	private ImageIcon info;
+
 	public Interfaz(int delay, int tam) {
 		this.delayNuevo = delay;
 		this.tam = tam;
@@ -43,56 +59,72 @@ public class Interfaz extends JFrame {
 		iniciarOyentes();
 	}
 
+	/**
+	 * Método que inicia los oyentes.
+	 */
 	private void iniciarOyentes() {
 		setTimer(new Timer(getDelay(), new TimerListener()));
 		getIniciarBoton().addActionListener(new IniciarListener());
 		getSiguienteBoton().addActionListener(new SiguienteListener());
 		getVelocidadSlider().addChangeListener(new VelocidadListener());
-		getTamJuego().addActionListener(new TamListener());
+		getTamJuego().addKeyListener(new TamListener());
+		getBotonInformacion().addActionListener(new InfoListener());
 	}
 
+	/**
+	 * Método que inicializa los componentes de la interfaz.
+	 */
 	private void iniciarComponentes() {
+		setErik(new Autor());
+		setInfo(new ImageIcon("imagenes/info.png"));
+		setBotonInformacion(new JButton(getInfo()));
+		getBotonInformacion().setBorder(null);
 		setMundo(new MundoGrafico(getTam()));
 		setTamJuego(new JTextField("Tamaño del juego", 10));
 		setVelocidadSlider(new JSlider(getMinVelocidad(), getMaxVelocidad()));
 		setIniciarBoton(new JButton(getINI()));
 		setSiguienteBoton(new JButton(getPASO()));
 		setPanelControles(new JPanel());
-		
-		getPanelControles().setLayout(new GridLayout(1, 4));
+
+		getPanelControles().setLayout(new GridLayout(1, 5));
 		getPanelControles().setBackground(Color.LIGHT_GRAY);
-		
+
 		add(getMundo(), BorderLayout.CENTER);
 		getPanelControles().add(getTamJuego());
 		getPanelControles().add(getVelocidadSlider());
 		getPanelControles().add(getIniciarBoton());
 		getPanelControles().add(getSiguienteBoton());
+		getPanelControles().add(getBotonInformacion());
 		add(getPanelControles(), BorderLayout.PAGE_END);
 	}
 
+	/**
+	 * Método que inicia la interfaz.
+	 */
 	private void iniciar() {
-		setSize(new Dimension(600, 600));
+		setSize(new Dimension(1000, 800));
 		setLayout(new BorderLayout());
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setTitle("El Juego de la vida");
 	}
-	
+
 	class TimerListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			repaint();
 		}
-		
+
 	}
-	
+
 	class IniciarListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			getTimer().start();
+			getMundo().setCorriendo(true);
 		}
-		
+
 	}
 	class SiguienteListener implements ActionListener {
 
@@ -101,9 +133,9 @@ public class Interfaz extends JFrame {
 			getTimer().stop();
 			repaint();
 		}
-		
+
 	}
-	
+
 	class VelocidadListener implements ChangeListener {
 
 		@Override
@@ -114,25 +146,74 @@ public class Interfaz extends JFrame {
 			System.out.println(getDelayNuevo());
 			getTimer().start();
 		}
-		
+
 	}
-	class TamListener implements ActionListener {
+	class TamListener implements KeyListener {
+
+		@Override
+		public void keyTyped(KeyEvent e) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void keyPressed(KeyEvent e) {
+			if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+				JTextField tam = (JTextField)e.getSource();
+				if (Integer.parseInt(tam.getText()) > 50 || Integer.parseInt(tam.getText()) < 10) {
+					JOptionPane.showMessageDialog(getMundo(), "El tamaño debe ser entre 10 y 50");
+				} else {
+					getTimer().stop();
+					getMundo().reiniciar(Integer.parseInt(tam.getText()));
+				}
+			}
+		}
+
+		@Override
+		public void keyReleased(KeyEvent e) {
+			// TODO Auto-generated method stub
+
+		}
+	}
+
+	class InfoListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			JTextField tam = (JTextField)e.getSource();
-			getTimer().stop();
-			getMundo().reiniciar(Integer.parseInt(tam.getText()));
+			getErik().mostrar();
 		}
 		
 	}
-	
 	/**
 	 * Getter & Setter
 	 */
-	
+
 	public JPanel getPanelControles() {
 		return panelControles;
+	}
+
+	public ImageIcon getInfo() {
+		return info;
+	}
+
+	public void setInfo(ImageIcon info) {
+		this.info = info;
+	}
+
+	public JButton getBotonInformacion() {
+		return botonInformacion;
+	}
+
+	public void setBotonInformacion(JButton botonInformacion) {
+		this.botonInformacion = botonInformacion;
+	}
+
+	public Autor getErik() {
+		return erik;
+	}
+
+	public void setErik(Autor erik) {
+		this.erik = erik;
 	}
 
 	public int getTam() {
@@ -246,6 +327,6 @@ public class Interfaz extends JFrame {
 	public String getPASO() {
 		return PASO;
 	}
-	
-	
+
+
 }
